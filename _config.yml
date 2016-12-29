@@ -5,17 +5,17 @@ email: Princessqyy@gmail.com
 copyright_name: Yuki
 description: "This blog is mainly for coding and technical communicating!"
 
-url: "http://yourdomain.com"
+url: "http://www.princess7.top"
 #twitter_username: SBootstrap
 github_username:  PrincessQyy
 #facebook_username:  StartBootstrap
 email_username:  Princessqyy@gmail.com
 
-# Google Analytics
-# To enable google analytics, uncomment below line with a valid Google Tracking ID
-# google_tracking_id:
+ Google Analytics
+ To enable google analytics, uncomment below line with a valid Google Tracking ID
+ google_tracking_id:Princessqyy
 
-# Build settings
+ Build settings
 markdown: kramdown
 highlighter: rouge
 permalink: pretty
