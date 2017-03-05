@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "【Linux】命令行bash的基本操作"
-date:       2017-03-4 15:00:00
+date:       2017-03-1 15:00:00
 author:     "Yuki"
 
 ---
