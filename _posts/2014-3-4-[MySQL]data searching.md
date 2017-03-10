@@ -46,7 +46,7 @@ WHERE 后面可以有不止一条限制，而根据条件之间的逻辑关系�
 
 SQL 允许对表中的数据进行计算。对此，SQL 有 5 个内置函数，这些函数都对 SELECT 的结果做操作：
 
-![](http://a1.qpic.cn/psb?/V147rPAc093Xfq/1ePihiH84x7.Z2mITPjmuzWJdFE6sOPiLlRqm5JR8S0!/c/dCABAAAAAAAA&ek=1&kp=1&pt=0&bo=QwJwAAAAAAAFFwU!&tm=1488718800&sce=60-2-2&rf=0-0)
+<img src="../../../../../img/blogs/data_searching.jpg">
 
 其中 COUNT 函数可用于任何数据类型(因为它只是计数)，而另4个函数都只能对数字类数据类型做计算。
 

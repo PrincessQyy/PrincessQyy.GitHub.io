@@ -12,7 +12,7 @@ author:     "Yuki"
     `CREATE TABLE table_name(Column1 Type1 Constraint1 ,Column2 Type2 Constraint2,Column3 Type3 Constraint3...);`
 
 数据类型有：
-![](http://a1.qpic.cn/psb?/V147rPAc093Xfq/3RDtdnNcG6c42FrIf0HzOw5kDOdjj8fBTKHNbbdXK54!/b/dCABAAAAAAAA&ek=1&kp=1&pt=0&bo=PgIXAgAAAAAFFx0!&tm=1488711600&sce=60-2-2&rf=viewer_4)
+<img src="../../../../../img/blogs/data_type.jpg">
 
 约束我单独放到一个内容吧，这里就先不提了。
 
