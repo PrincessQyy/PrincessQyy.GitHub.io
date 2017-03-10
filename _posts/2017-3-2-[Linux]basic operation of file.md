@@ -8,7 +8,7 @@ author:     "Yuki"
 
 Linux中的文件系统为单根树状结构，“/”就是文件的根。在Linux中，一切皆文件，所有的文件都在根目录下。
 如下图：
-<img src="../../../../../img/blogs/file.jpg">
+<img src="../../../../../img/blogs/basic operation of file/file.jpg">
 
 下面简单说说一些常见的文件的作用。
 

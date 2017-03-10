@@ -17,7 +17,7 @@ author:     "Yuki"
 一对一模式，顾名思义，就是指表A中的某条记录在表B中有且只有一条相对应的记录。例如，某家公司的每个员工都只有一个社会安全号，一个社会安全号也只会对应一个人，这就是简单的一对一关系。
 如下图：
 
-<img src="../../../../../img/blogs/mul1.png"> 
+<img src="../../../../../img/blogs/database design of multiple tables/mul1.png"> 
 
 在schema图中，一对一关系连线是单纯的实线。
 
@@ -28,7 +28,7 @@ author:     "Yuki"
 
 一对多模式，表示A表中的某条记录可以在B表中查询到多条记录，但B表中的一条记录只会对应到A表中的某一条记录。例如，一本图书只有一个出版商，但是一个出版商可以出版多本图书。
 如下图：
-<img src="../../../../../img/blogs/mul2.png"> 
+<img src="../../../../../img/blogs/database design of multiple tables/mul2.png"> 
 
 用带箭头的连接线来表示一对多的关系。
 
@@ -40,7 +40,7 @@ author:     "Yuki"
 
 多对多模式：表示A表中的某条记录可以在B表中查询到多条记录，B表中的某条记录也可以在A表中查询到多条记录。例如，一个女士拥有很品牌的鞋，某一品牌的鞋子也可以被多个女士所拥有。
 如下图：
-<img src="../../../../../img/blogs/mul3.png">
+<img src="../../../../../img/blogs/database design of multiple tables/mul3.png">
 
 用双向箭头的连接线来表示多对多的关系。
 

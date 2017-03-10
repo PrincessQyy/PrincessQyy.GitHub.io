@@ -12,7 +12,7 @@ author:     "Yuki"
     `CREATE TABLE table_name(Column1 Type1 Constraint1 ,Column2 Type2 Constraint2,Column3 Type3 Constraint3...);`
 
 数据类型有：
-<img src="../../../../../img/blogs/data_type.jpg">
+<img src="../../../../../img/blogs/create,insert and delete/data_type.jpg">
 
 约束我单独放到一个内容吧，这里就先不提了。
 
