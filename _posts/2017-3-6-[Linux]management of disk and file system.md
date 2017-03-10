@@ -19,7 +19,9 @@ author:     "Yuki"
 
 主流的分区机制有MBR和GPT两种。
 
-** MBR ：**传统的分区机制，应用于绝大多数使用BIOS的PC设备。其特点有：
+**MBR:**
+
+传统的分区机制，应用于绝大多数使用BIOS的PC设备。其特点有：
 
 * 支持32bit和64bit的系统
 * 支持的分区数量有限
@@ -44,7 +46,7 @@ author:     "Yuki"
 
 在Linux中，我们使用 fdisk 工具来进行分区。注意：fdisk是针对MBR的分区工具，若要用GPT的，则无法使用MBR来进行分区操作。
 
-**关于 fdisk **
+**关于 fdisk**
 
 * fdisk是只有超级用户才能执行的命令
 * fdisk -l 可以列出所有磁盘及其分区信息
@@ -141,7 +143,7 @@ author:     "Yuki"
 **自动挂载**
 
 配置文件 /etc/fstab 用来定义需要自动挂载的文件系统。其中每一行代表一个挂载配置，格式如下：
-<img href="../../../../img/blogs/management of disk and file system/disk.jpg">
+<img href="../../../../img/blogs/management of disk and file system/disk.png">
 
 要挂载的设备也可用其标签进行识别。
 
