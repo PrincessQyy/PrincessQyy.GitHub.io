@@ -143,7 +143,7 @@ author:     "Yuki"
 **自动挂载**
 
 配置文件 /etc/fstab 用来定义需要自动挂载的文件系统。其中每一行代表一个挂载配置，格式如下：
-<img href="../../../../img/blogs/management of disk and file system/disk.png">
+<img src="../../../../../img/blogs/management of disk and file system/disk.png">
 
 要挂载的设备也可用其标签进行识别。
 
