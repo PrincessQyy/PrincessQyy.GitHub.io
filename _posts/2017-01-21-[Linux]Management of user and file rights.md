@@ -61,10 +61,8 @@ su <user>可以切换到用户user，执行时需要输入目标用户的密码�
 * 使用命令 ll <文件名> 来使用较长格式列出某个文件
 
 显示信息如下图，
-
-![](https://dn-anything-about-doc.qbox.me/linux_base/3-9.png/logoblackfont)
-
-![](https://dn-anything-about-doc.qbox.me/linux_base/3-10.png/logoblackfont)
+<img src="../../../../../img/blogs/management of user and file rights/01.png">
+<img src="../../../../../img/blogs/management of user and file rights/02.png">
 
 
 
@@ -105,7 +103,7 @@ su <user>可以切换到用户user，执行时需要输入目标用户的密码�
 如果你有一个自己的文件不想被其他用户读、写、执行，那么就需要对文件的权限做修改，这里有两种方式：
 
 方式一：二进制数字表示
-![](https://dn-anything-about-doc.qbox.me/linux_base/3-14.png/logoblackfont)
+<img src="../../../../../img/blogs/management of user and file rights/03.png">
 每个文件的三组权限（拥有者，所属用户组，其他用户,记住这个顺序是一定的）就对应这一个 "rwx"，所以如果我要将文件的权限改为只有我自己可以用那么就这样:700   表示拥有者有所有权限，而所属用户组，其他用户没有任何权限。
 * 用命令 chmod 700 <文件名> 来修改权限为只有我自己可以用。（700可以根据自己的需要来更改文件权限）
 
