@@ -50,7 +50,7 @@ author:     "Yuki"
 
 **完整代码如下：**
 
-{% highlight c++ %}
+
     #include<stdio.h>
     #include<stdlib.h>
     #include<string.h>
@@ -235,7 +235,7 @@ author:     "Yuki"
     	Find(d,e,&MG);
     	output(&MG);
     }
-{% endhighlight %}
+
 
 **运行结果**
 

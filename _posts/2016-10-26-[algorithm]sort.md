@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "【算法设计】排序算法"
-date:       2016-05-21 14:39:00
+date:       2016-10-26 14:07:00
 author:     "Yuki"
 ---
 
@@ -20,7 +20,7 @@ author:     "Yuki"
 
 **插入排序、归并排序、快速排序：**
 
-{% highlight python %}
+
     import os
     import re
     #插入排序
@@ -159,11 +159,10 @@ author:     "Yuki"
 	            file_out.write(" %d" % t)
 	    file_out.write("\n\n")
 	file_out.close()   `
-{% endhighlight %}
+
 
 **堆排序**
 
-{% highlight python %}
     import os
     import re
 
@@ -240,4 +239,8 @@ author:     "Yuki"
 	            file_out.write(" %d" % t)
 	    file_out.write("\n\n")
 	file_out.close() 
-{% endhighlight %}
+
+**运行结果的部分截图**
+
+
+<img src="../../../../../img/blogs/sort/01.png">
