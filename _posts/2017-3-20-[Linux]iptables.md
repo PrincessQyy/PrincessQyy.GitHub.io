@@ -7,9 +7,7 @@ author:     "Yuki"
 
 #### iptables简介
 
-iptables 是与最新的 3.5 版本 Linux 内核集成的 IP 信息包过滤系统。该系统有利于在 Linux 系统上更好地控制 IP 信息包过滤和防火墙配置。
-
-iptables 就是目前工作于较新版（内核版本高过2.4的） Linux 内核中的强大的数据包过滤的软件，它主要是由两部分组成：
+iptables 就是目前工作于较新版（内核版本高过2.4的） Linux 内核中的强大的数据包过滤的软件，该系统有利于在 Linux 系统上更好地控制 IP 信息包过滤和防火墙配置。它主要是由两部分组成：
 
 * iptalbes：主要工作于用户空间，为用户提供了一个编辑规则的接口。
 * netfilter：主要工作于内核空间，是内核的一部分，由一些过滤表组成。
@@ -314,5 +312,24 @@ Netstat 命令用于显示各种网络相关信息，如网络连接，路由表
 
 然后使用命令 `iptables -I INPUT 1 -s ip -j DROP` 来禁止掉攻击源。
 
-方法二：
+方法二：日志分析
+
+利用文本命令组合分析/var/log/secure 找出攻击源。最常用的命令有：grep、awk、wc、tr、sort、uniq等。
+
+/var/log/secure 内容如下：
+
+<img src="../../../../../img/blogs/iptables/05.png">
+
+每行代表一次登录信息，内容依次是：时间、主机号、应用程序、程序部分、日志相关信息（登录成功与否，用户身份信息等）。
+
+其中，登录错误的信息会显示如下：
+
+<img src="../../../../../img/blogs/iptables/06.png">
+
+
+若我们想筛选出每个IP地址的错误登陆次数，可以用如下命令：
+
+cat /var/log/secure | grep "authentication failure" | awk -F " " {print $14} | awk -F "=" '{print $2}'| sort -n | uniq -c | sort -rn 
+
+然后用命令 `iptables -I INPUT 1 -s ip -j DROP` 阻拦掉攻击源。
 
