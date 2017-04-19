@@ -23,7 +23,7 @@ a. 指定数量的字节指令 b.线程主动让出控制权（可使用time.sle
 5. 解锁GIL
 6. 重复以上步骤
 
-python提供了多个模块来支持多线程编程，这里主要总结一下thread和threading模块。
+ Python中使用线程有两种方式：函数或者用类来包装线程对象。也就涉及了下面的thread和threading模块。
 
 **thread**
 
@@ -223,9 +223,133 @@ threading模块支持守护进程，它的工作方式是：守护线程一般�
     if __name__ == '__main__':
     	main()
 
+#### 简单的生产者、消费者模型
+
+我发现在爬虫学习的资料里，不管是权威书籍，还是网络上各种视频和博客，都会讲到生产者-消费者模型，那么这个模型是什么意思呢？
+
+在并发编程中使用生产者和消费者模式能够解决绝大多数并发问题。该模式通过平衡生产线程和消费线程的工作能力来提高程序的整体处理数据的速度。在线程世界里，生产者就是生产数据的线程，消费者就是消费数据的线程。在多线程开发当中，如果生产者处理速度很快，而消费者处理速度很慢，那么生产者就必须等待消费者处理完，才能继续生产数据。同样的道理，如果消费者的处理能力大于生产者，那么消费者就必须等待生产者。为了解决这种生产消费能力不均衡的问题，所以便有了生产者和消费者模式。
+
+生产者消费者模式是通过一个容器来解决生产者和消费者的强耦合问题。生产者和消费者彼此之间不直接通讯，而通过阻塞队列来进行通讯，所以生产者生产完数据之后不用等待消费者处理，直接扔给阻塞队列，消费者不找生产者要数据，而是直接从阻塞队列里取，阻塞队列就相当于一个缓冲区，平衡了生产者和消费者的处理能力。
+
+这个阻塞队列就是用来给生产者和消费者解耦的。纵观大多数设计模式，都会找一个第三者出来进行解耦，如工厂模式的第三者是工厂类，模板模式的第三者是模板类。在学习一些设计模式的过程中，如果先找到这个模式的第三者，能帮助我们快速熟悉一个设计模式。
+
+python中是通过Queue这个模块提供线程间通信的机制，线程放入产品，消费者来解析。其实这也相当于一个线程池。那么问题又来了，什么是线程池？
+
+诸如web服务器、数据库服务器、文件服务器和邮件服务器等许多服务器应用都面向处理来自某些远程来源的大量短小的任务。如果每当一个请求到达就创建一个新的服务对象，然后在新的服务对象中为请求服务。但有大量请求并发访问时，服务器不断的创建和销毁对象的开销很大。所以提高服务器效率的一个手段就是尽可能减少创建和销毁对象的次数，特别是一些很耗资源的对象创建和销毁，这样就引入了“池”的概念，“池”的概念使得人们可以定制一定量的资源，然后对这些资源进行复用，而不是频繁的创建和销毁。
+
+概念性的东西说的差不多了，下面来看一个实例吧，这是爬韩寒的博客首页，只是为了后面的性能对比，所以没有输出和保存什么内容：
+
+    import requests
+    import time
+    from bs4 import BeautifulSoup
+    import re
+    from Queue import Queue
+    import threading
+    
+    def spider(url):
+	    headers={}
+	    r=requests.get(url) 
+	    #print r.status_code
+
+
+    class MyThread(threading.Thread):
+	    def __init__(self,queue):
+	        threading.Thread.__init__(self)
+	        self._queue=queue
+	    def run(self):
+	        while not self._queue.empty():
+	            page_url=self._queue.get_nowait()
+	            spider(page_url)
+          
+
+
+    def main():
+	    start=time.clock()
+	    threads=[]
+	    threads_count=10
+	    
+	    
+	    queue=Queue()
+	    
+	    #get url
+	    base_url='http://blog.sina.com.cn/s/article_sort_1191258123_10001_'
+	    urls=[]
+	    for i in range(1,32):
+	        url=base_url+str(i)+'.html'
+	        queue.put(url)
+	        
+	    #create threads
+	    for i in range(threads_count):
+	        threads.append(MyThread(queue))
+	        
+	    #start
+	    for i in range(threads_count):
+	        threads[i].start()
+	        
+	    #join
+	    for i in range(threads_count):
+	        threads[i].join()    
+	        
+	        
+	    end=time.clock()
+	    
+	    print 'all done costs %f' % (end-start)
+        
+    
+    
+    if __name__ == '__main__':
+		main()
 
 
 
+#### 真正的并发
+
+之前的多线程是一种伪的机制，当你去爬比较多的数据的时候你会发现性能不是很高，也可能是我电脑本身太次了(◐_◑)其实在python中其实还有一个强大的、几乎无人提及的模块，这个模块甚至在官方文档中也只有短短一句的描述：
+
+<img src="../../../../../img/blogs/multithread/03.png">
+
+简单翻译一下，就是说这个模块是复制了multiprocessing的接口只不过它是多线程模块的封装，而Multiprocessing模块是为多核或多CPU派生进程。那么这个模块就可以充分利用多核CPU的优势，实现并发的访问啊！！！这么好的东西，我居然现在才发现！话不多说，代码改进如下：
+
+    import urllib2 
+    from multiprocessing.dummy import Pool as ThreadPool 
+    import time
+    import requests
+    
+    
+    def spider(urls):
+	    headers={}
+	    r=map(requests.get,urls)
+
+    def main():
+	    start=time.clock()
+	    
+	    pool=ThreadPool()
+	    
+	    
+	    #get url
+	    base_url='http://blog.sina.com.cn/s/article_sort_1191258123_10001_'
+	    urls=[]
+	    for i in range(1,32):
+	    url=base_url+str(i)+'.html'
+	    urls.append(url)
+	    
+	       
+	    
+	    spider(urls)
+	    
+	    pool.close()
+	    pool.join()
+	    
+	    end=time.clock()
+	    
+	    print 'all done costs %f' % (end-start)
+
+    if __name__ == '__main__':
+		main()
+
+
+
+你没有看错！！！就是这么短短的几行代码！！！聪明的小伙伴肯定还发现了，我之前爬网站的时候，是用for循环把URL一个一个传进函数的，但是这个代码用了map()函数，python的map()函数也是相当了得啊，这个函数有两个参数，第一个参数是一个函数，第二个参数是一个序列，这个函数会把序列里的每一个参数都传到函数中，然后返回一个新的序列，最重要的是，这个过程是并发执行的！！！不得不说，python就是这样，只要愿意去探索，它永远会给你新惊喜。呼~多线程的学习就暂时到这儿，继续去探索新大陆了ლ(╹◡╹ლ)
 
 
 
