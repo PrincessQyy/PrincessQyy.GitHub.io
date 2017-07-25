@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "【Linux】awk使用总结"
-date:       2017-01-01 20:44:00
+date:       2017-06-01 20:44:00
 author:     "Yuki"
 ---
 
@@ -90,7 +90,7 @@ format格式的指示符都以%开头，后跟一个字符，整体要用双引�
 
 * NR：多个文件中处理的行总数
 * FNR：每个文件中正在处理的行数
-* NF：当前记录的字段数
+* NF：当前记录的总字段数
 
 **自定义变量** 
 
@@ -105,13 +105,16 @@ format格式的指示符都以%开头，后跟一个字符，整体要用双引�
 
 * regex：正则表达式，格式为`/regular exception/`
 * exception：表达式，其值非0或字符非空时满足条件，如：`$1　~ /foo/` 或` $1 == "foo"` ，用运算符~(匹配)和！~(不匹配)。
-* ranges：指定范围，使用格式为part1，part2。
-* BEGIN/END：特殊模式，仅在awk命令执行前/执行后运行一次 
+* ranges：指定范围，使用格式为part1，part2，part也可以是regex。
+* BEGIN/END：特殊模式，仅在awk整个命令执行前/整个命令执行后运行一次 
 * EMPTY：空模式，即对文件的每一行都做处理。
+
+* 举例：
+
 
 **常见的Action**
 
-
+* Expressions ： 
 
 
  
