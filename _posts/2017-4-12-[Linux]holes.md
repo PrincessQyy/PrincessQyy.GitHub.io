@@ -13,3 +13,9 @@ author:     "Yuki"
 
 <img src="../../../../../img/blogs/holes/01.png">
 
+#### Linux安全问题
+
+实际上，操作系统的安全性是有评级的，D级、C1、C2、C3级、B1、B2、A级，A级是最高级别。Linux的安全性并不比Windows高，Linux和Windows都是C2级的。但是，Linux的运行方式比Windows稳定，一般来说，Linux服务器一般10年8年都可以不重启，只要服务器支持长时间在线，它都能一如既往的提供服务。但Windows的话，基本1周就得重启了...
+
+SELinux能使Linux的安全级别从C2提升到B1。
+
