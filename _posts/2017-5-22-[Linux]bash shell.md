@@ -136,8 +136,8 @@ shift n 同理。
 
 * == ：判断是否相等
 * != ：判断是否不等
-* -n string：判断string是否为空
-* -s string：判断字符是否非空
+* -n string：判断string是否非空
+* -s string：判断字符是否空
 
 #### 条件测试的表达式
 
