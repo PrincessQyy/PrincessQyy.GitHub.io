@@ -96,30 +96,30 @@ top.sls 默认从 base 标签开始解析执行,下一级是操作的目标，�
 
 * 通过正则进行匹配的示例，
 		
-		base:
-		  '*':
-		    - webserver
+	base:
+		 '*':
+		   - webserver
 
 * 通过分组名进行匹配的示例，必须要有 - match: nodegroup
 		
-		base:
-		  group1:
-		    - match: nodegroup    
-		    - webserver
+	base:
+		 group1:
+		   - match: nodegroup    
+		   - webserver
 		    
 * 通过grain模块匹配的示例，必须要有- match: grain
 		
-		base:
-		  'os:Fedora':
-		    - match: grain
-		    - webserver
+	base:
+		'os:Fedora':
+		   - match: grain
+		   - webserver
 
 * 准备好top.sls文件后，编写一个state文件
-		
-		/srv/salt/webserver.sls
-		apache:                 # 标签定义
-		  pkg:                  # state declaration
-		    - installed         # function declaration
+/srv/salt/webserver.sls
+	
+	apache:                 # 标签定义
+		pkg:                  # state declaration
+			- installed         # function declaration
 		    
 第一行被称为（ID declaration） 标签定义，在这里被定义为安装包的名。注意：在不同发行版软件包命名不同,比如 fedora 中叫httpd的包 Debian/Ubuntu中叫apache2
 
@@ -150,34 +150,7 @@ top.sls 默认从 base 标签开始解析执行,下一级是操作的目标，�
 	    
 编写完top.sls后，编写state.sls文件；
 
-	nginx:
-	  pkg:               #定义使用（pkg state module）
-	    - installed      #安装nginx（yum安装）
-	  service.running:   #保持服务是启动状态
-	    - enable: True
-	    - reload: True
-	    - require:
-	      - file: /etc/init.d/nginx
-	    - watch:                 #检测下面两个配置文件，有变动，立马执行上述/etc/init.d/nginx 命令reload操作
-	      - file: /etc/nginx/nginx.conf
-	      - file: /etc/nginx/fastcgi.conf
-	      - pkg: nginx
-	/etc/nginx/nginx.conf:       #绝对路径
-	  file.managed:
-	    - source: salt://files/nginx/nginx.conf  #nginx.conf配置文件在salt上面的位置
-	    - user: root
-	    - mode: 644
-	    - template: jinja   #salt使用jinja模块
-	    - require:
-	      - pkg: nginx
-	
-	/etc/nginx/fastcgi.conf:
-	  file.managed:
-	    - source: salt://files/nginx/fastcgi.conf 
-	    - user: root
-	    - mode: 644
-	    - require:
-	      - pkg: nginx 
+<img src="../../../../../img/blogs/SaltStack/01.png">
 
 在当前目录下面（salt的主目录）创建files/nginx/nginx.conf、files/nginx/fastcgi.conf文件，里面肯定是你自己项配置的nginx配置文件的内容啦；使用salt做自动化，一般nginx都是挺熟悉的，这里不做详细解释了
 
@@ -185,72 +158,34 @@ top.sls 默认从 base 标签开始解析执行,下一级是操作的目标，�
 
 * include： 包含某个文件 比如我新建的一个my_webserver.sls文件内，就可以继承nginx和PHP相关模块配置，而不必重新编写
 
-		 include:
-		  - nginx
-		  - php 
+<img src="../../../../../img/blogs/SaltStack/02.png">
 	  
 * match: 配模某个模块，比如 之前定义top.sls时候的 
 
-		match: grain match: 
+`match: grain match: `
 
 * nodegroup require： 依赖某个state，在运行此state前，先运行依赖的state，依赖可以有多个 比如文中的nginx模块内，相关的配置必须要先依赖nginx的安装
 
-		- require:
-		  - pkg: nginx 
+<img src="../../../../../img/blogs/SaltStack/03.png">
 
 * watch： 在某个state变化时运行此模块，文中的配置，相关文件变化后，立即执行相应操作
 
-		- watch:
-	  	- file: /etc/nginx/nginx.conf
-	  	- file: /etc/nginx/fastcgi.conf
-	  	- pkg: nginx 
+<img src="../../../../../img/blogs/SaltStack/04.png">
 
 * order： 优先级比require和watch低，有order指定的state比没有order指定的优先级高，假如一个state模块内安装多个服务，或者其他依赖关系，可以使用
-
-		nginx:
-		  pkg.installed:
-		    - order:1 
-
+ 
+<img src="../../../../../img/blogs/SaltStack/05.png">
+	
 想让某个state最后一个运行，可以用last
 
 #### 进阶主题：模板
 使用模板来精简SLS，使SLS可以使用python的 循环，分支，判断 等逻辑
 
-		{% for item in ['tmp','test'] %}
-		/opt/{{ item }}:
-		  file.directory:
-		    - user: root
-		    - group: root
-		    - mode: 755
-		    - makedirs: True
-		{% endfor %}
-		```markdown
-		httpd:
-		  pkg.managed:
-		{% if grains['os'] == 'Ubuntu' %}
-		    - name: apache2
-		{% elif grains['os'] == 'CentOS' %}
-		    - name: httpd
-		{% endif %}
-		    - installed
-		    - 
+<img src="../../../../../img/blogs/SaltStack/06.png">
+
 通过加载jinja模板引擎，可以模板配置文件按照预订条件来生成最终的配置文件
 
-		/opt/test.conf
-		
-		{% if grains['os'] == 'Ubuntu' %}
-		host: {{ grains['host'] }}
-		{% elif grains['os'] == 'CentOS' %}
-		host: {{ grains['fqdn'] }}
-		{% endif %}
-		```markdown
-		/opt/test.conf:
-		  file.managed:
-		    - source: salt://test.conf
-		    - user: root
-		    - group: root
-		    - mode: 644
-		    - template: jinja		
+<img src="../../../../../img/blogs/SaltStack/07.png">
 
 # salt-ssh
 
