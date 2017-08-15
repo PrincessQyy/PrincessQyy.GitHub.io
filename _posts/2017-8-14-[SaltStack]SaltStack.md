@@ -11,12 +11,18 @@ author:     "Yuki"
 SaltStack是一个服务器基础架构集中化管理平台，具备配置管理、远程执行、监控等功能，一般可以理解为简化版的puppet和加强版的func。SaltStack基于Python语言实现，结合轻量级消息队列（ZeroMQ）与Python第三方模块（Pyzmq、PyCrypto、Pyjinjia2、python-msgpack和PyYAML等）构建。
 通过部署SaltStack环境，我们可以在成千上万台服务器上做到批量执行命令，根据不同业务特性进行配置集中化管理、分发文件、采集服务器数据、操作系统基础及软件包管理等，SaltStack是运维人员提高工作效率、规范业务配置与操作的利器。
  
-2、特性
+* 特性
+
 (1)、部署简单、方便；
+
 (2)、支持大部分UNIX/Linux及Windows环境；
+
 (3)、主从集中化管理；
+
 (4)、配置简单、功能强大、扩展性强；
+
 (5)、主控端（master）和被控端（minion）基于证书认证，安全可靠；
+
 (6)、支持API及自定义模块，可通过Python轻松扩展。
 
 # Salt安装
