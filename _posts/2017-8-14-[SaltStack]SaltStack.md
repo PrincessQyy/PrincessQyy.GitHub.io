@@ -252,7 +252,7 @@ top.sls 默认从 base 标签开始解析执行,下一级是操作的目标，�
 		    - mode: 644
 		    - template: jinja		
 
-#salt-ssh
+# salt-ssh
 
 Salt 在版本 0.17.0 当中，引入了新的传输系统，它支持通过 SSH 通道来实现 Salt 的通信。通过这种方式，我们可以直接通过 SSH 通道在远程主机上执行使用 SaltStack，而不需要在远程主机上运行 Salt Minion ，同时又能支持 SaltStack 的大部分功能，而且 Salt Master 也不需要运行了。这样，也就实现了免客户端方式的部署和实施。
 
