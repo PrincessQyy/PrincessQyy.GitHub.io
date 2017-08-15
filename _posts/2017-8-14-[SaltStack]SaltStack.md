@@ -35,7 +35,7 @@ SaltStack是一个服务器基础架构集中化管理平台，具备配置管�
 
 # salt配置
 
-[ 详细配置参考 ](https://wenku.baidu.com/view/9be3fe195022aaea988f0f1d.html)
+[详细配置参考](https://wenku.baidu.com/view/9be3fe195022aaea988f0f1d.html)
 
 在安装好salt后，在minion端，编辑配置文件，
 
