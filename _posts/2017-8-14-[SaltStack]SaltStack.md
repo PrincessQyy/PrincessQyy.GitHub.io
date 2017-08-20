@@ -86,10 +86,7 @@ SLS（代表SaLt State文件）是Salt State系统的核心。SLS描述了系统
 	   base:
 	     - /srv/salt
 
-
-
-
-ttop.sls 是配置管理的入口文件，一切都是从这里开始，在master 主机上，默认存放在/srv/salt/目录. 
+top.sls 是配置管理的入口文件，一切都是从这里开始，在master 主机上，默认存放在/srv/salt/目录. 
 top.sls 默认从 base 标签开始解析执行,下一级是操作的目标，可以通过正则，grain模块,或分组名,来进行匹配,再下一级是要执行的state文件，不包换扩展名。
 
 #### 创建 /srv/salt/top.sls
@@ -187,13 +184,35 @@ top.sls 默认从 base 标签开始解析执行,下一级是操作的目标，�
 
 <img src="../../../../../img/blogs/SaltStack/07.png">
 
+
+### 实例
+
+#### 批量部署 Nginx
+
+**方法一：**
+
+这个方法是不写top文件的，先看下目录结构吧
+
+<img src="../../../../../img/blogs/SaltStack/08.png">
+
+再看看 sls文件
+
+<img src="../../../../../img/blogs/SaltStack/09.png">
+
+一般 name 选项后面写minion端的路径（绝对路径）
+
+source 选项后面写 master端的路径，这里是相对路径，相对于/srv/salt/
+
+其他字段的含义就看链接里的博客吧，写得很清楚：[文件管理](http://blog.csdn.net/hnhuangyiyang/article/details/50412738)
+
+
 # salt-ssh
 
 Salt 在版本 0.17.0 当中，引入了新的传输系统，它支持通过 SSH 通道来实现 Salt 的通信。通过这种方式，我们可以直接通过 SSH 通道在远程主机上执行使用 SaltStack，而不需要在远程主机上运行 Salt Minion ，同时又能支持 SaltStack 的大部分功能，而且 Salt Master 也不需要运行了。这样，也就实现了免客户端方式的部署和实施。
 
 但是由于无客户端本身的局限性 Salt SSH 并不能完全取代标准的 Salt 通信方式，只是简单地提供了一个基于 SSH 通道的可选方式，这种方式不需要 ZeroMQ 和远程 Agent 的支持；整体的工作流程和基于客户端架构大致相同。但必须意识到，通过 Salt SSH 的执行速度会远远低于 ZeroMQ 支持的标准的 Salt 通信方式。
 
-### 安装
+### salt-ssh安装
 
 在master端执行 `yum -y install salt-ssh`  安装salt-ssh
 
