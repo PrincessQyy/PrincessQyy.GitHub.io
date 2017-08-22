@@ -32,6 +32,12 @@ zabbix采用的是经典的C/S模式，分布式架构为Client/Proxy/Server，z
 
 <img src="../../../../../img/blogs/zabbix/02.png">
 
+# 安装LAMP
+
+ZABBIX需要LAMP环境支持，所以需要先安装好 Apache、MySQL和php,直接输入以下命令即可：
+
+`yum -y install httpd,php,mariadb`
+
 # 安装ZABBIX
 
 说到安装，也是有点心累，上官网找到zabbix相应版本的rpm包，然后在 /etc/yum.repos.d目录下建立zabbix.repo文件，编辑如下
@@ -68,6 +74,58 @@ zabbix采用的是经典的C/S模式，分布式架构为Client/Proxy/Server，z
 `shell # zcat create.sql.gz|mysql -uzabbix -pzabbix zabbix`
 
 <img src="../../../../../img/blogs/zabbix/05.png">
+
+#Selinux、防火墙、iptables配置
+
+这里建议关闭selinux、实际生产中也是关闭的，永久关闭在 /etc/selinux/config 文件中 改 SELINUX = disabled 即可。
+
+防火墙我也是关掉的 `systemctl stop firewalld.service`
+
+iptables 需要增加几条规则开放 10050 和 10051 端口，10050是Agent端口，10051是Server端口。
+
+`iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 10051 -j ACCEPT`
+
+`iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 10050 -j ACCEPT`
+
+`iptables -A INPUT -m state --state NEW -m tcp -p tcp --sport 10050 -j ACCEPT`
+
+# 配置zabbix
+
+* 配置 zabbix_server.conf
+
+编辑/etc/zabbix/zabbix_server.conf文件，常见参数设置如下：（我就截图没有被注释掉的行吧） 
+
+<img src="../../../../../img/blogs/zabbix/06.png">
+
+然后`systemctl start zabbix-server.service`启动zabbix_server服务
+
+* 配置Web界面
+
+打开浏览器（可以是你的主机，而不是虚拟机），输入http://IP/zabbix 就会出现配置界面啦。点击 next step 即可，如果提示参数不通过（后面会有个 fail），那么编辑 /etc/php.ini 文件，修改相应参数即可。  按照提示输入密码，改个名称，一步一步 next 就行。最后的配置信息会保存在 /etc/zabbix/web/zabbix.conf.php 这个文件中。
+
+点击 finish 然后登陆
+
+<img src="../../../../../img/blogs/zabbix/07.png">
+
+默认用户是 Admin，密码是zabbix
+
+登陆后界面如下：
+
+<img src="../../../../../img/blogs/zabbix/08.png">
+
+发现 zabbix server is running 后面的 value 竟然是 No (；´д｀)ゞ  ，此时需要修改 /etc/zabbix/web/zabbix.conf.php 这个文件里 
+
+<img src="../../../../../img/blogs/zabbix/09.png">
+
+把`$ZBX_SERVER      = 'localhost'` 修改为 `$ZBX_SERVER      = '127.0.0.1'`
+
+刷新页面，发现还是没有成功 - - 看来不是这个问题，查看/var/zabbix/zabbix—_server.log文件，发现
+
+<img src="../../../../../img/blogs/zabbix/10.png">
+
+原来是数据库的原因呀，找不到 mysql.sock 文件，先在终端输入 `find / -name mysql.sock` 查找到这个文件的路径，发现在 /var/lib/mysql/mysql.sock 这个路径下，修改 /etc/zabbix/zabbix_server.conf 文件中 DBSocket 选项的路径为该路径，然后重启 zabbix-server 服务，发现成功了 ٩(๑❛ᴗ❛๑)۶ 不容易呀~
+
+<img src="../../../../../img/blogs/zabbix/11.png">
 
 
 
