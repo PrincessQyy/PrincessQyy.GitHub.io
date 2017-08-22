@@ -21,7 +21,7 @@ BOND就是两块网卡可以使用同一个IP工作，不会因为其中一块�
 2. 修改要绑定的网卡的信息，这里是 eth0和eth1，修改 ifcfg-eth0和ifcfg-eth1文件，把HWADDR去了，然后增加选项 MASTER=bond0
 ，SLAVE=yes 指定绑定的bond。
 
-3. 在/etc/modprobe.d/目录下新建一个bonding.conf文件，配置如下：其实就是起个别名，然后
+3. 在/etc/modprobe.d/目录下新建一个bonding.conf文件，配置如下：其实就是起个别名，然后配置下模式啥的
 
 `alias bond0 bonding`
 
