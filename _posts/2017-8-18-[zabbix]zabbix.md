@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "【ZABBIX】Zabbix基本配置"
+title:      "【ZABBIX】Zabbix-server基本配置"
 date:       2017-08-21 09:43:00
 author:     "Yuki"
 ---
