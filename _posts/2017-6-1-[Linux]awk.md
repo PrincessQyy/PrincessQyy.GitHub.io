@@ -122,3 +122,7 @@ format格式的指示符都以%开头，后跟一个字符，整体要用双引�
 **AWK统计80端口所有连接状态的数量：**
 
 `netstat -tunp | awk '/:80\>/{num[$NF]++}END{for (each in num) {print{each,num[each]}}}'`
+
+**将多行文件合并为一行，并指定分隔符（这里将9行文件合并为一行，指定分隔符为空格）**
+
+`awk '{ORS=NR%9?" ":RS}1'`

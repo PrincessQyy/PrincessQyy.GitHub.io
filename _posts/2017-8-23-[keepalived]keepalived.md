@@ -46,3 +46,179 @@ VRRP控制报文只有一种：VRRP通告(advertisement)｡它使用IP多播数�
 
 # keepalived 配置
 
+### 配置keepalived为实现haproxy高可用的配置文件/etc/keepalived/keepalived.conf：
+
+	! Configuration File for keepalived  
+	  
+	global_defs {  
+	   notification_email {  
+	         PrincessQyy@gmail.com
+	   }  
+	   notification_email_from kanotify@magedu.com 
+	   smtp_connect_timeout 3  
+	   smtp_server 127.0.0.1  
+	   router_id LVS_DEVEL  
+	}  
+	
+	vrrp_script chk_haproxy {  
+	    script "killall -0 haproxy"  
+	    interval 1  
+	    weight 2  
+	}  
+	
+	vrrp_script chk_mantaince_down {
+	   script "[[ -f /etc/keepalived/down ]] && exit 1 || exit 0"
+	   interval 1
+	   weight 2
+	}
+	
+	vrrp_instance VI_1 {  
+	    interface eth0  
+	    state MASTER  # BACKUP for slave routers
+	    priority 101  # 100 for BACKUP
+	    virtual_router_id 51 
+	    garp_master_delay 1 
+	  
+	    authentication {  
+	        auth_type PASS  
+	        auth_pass password  
+	    }  
+	    track_interface {  
+	       eth0    
+	    }  
+	    virtual_ipaddress {  
+	        172.16.100.1/16 dev eth0 label eth0:0 
+	    }  
+	    track_script {  
+	        chk_haproxy  
+	        chk_mantaince_down
+	    }  
+	  
+	 
+	    notify_master "/etc/keepalived/notify.sh master"  
+	    notify_backup "/etc/keepalived/notify.sh backup"  
+	    notify_fault "/etc/keepalived/notify.sh fault"  
+	}
+
+注意：
+1、上面的state为当前节点的起始状态，通常在master/slave的双节点模型中，其一个默认为MASTER，而别一个默认为BACKUP。
+2、priority为当关节点在当前虚拟路由器中的优先级，master的优先级应该大于slave的；
+
+
+**下面是notify.sh脚本**
+	#!/bin/bash
+	# description: A notify script
+	# 
+	
+	vip=172.16.100.1
+	contact='root@localhost'
+	
+	Notify() {
+	    mailsubject="`hostname` to be $1: $vip floating"
+	    mailbody="`date '+%F %H:%M:%S'`: vrrp transition, `hostname` changed to be $1"
+	    echo $mailbody | mail -s "$mailsubject" $contact
+	}
+	
+	case "$1" in
+	    master)
+	        notify master
+	        /etc/rc.d/init.d/haproxy start
+	        exit 0
+	    ;;
+	    backup)
+	        notify backup
+	        /etc/rc.d/init.d/haproxy restart
+	        exit 0
+	    ;;
+	    fault)
+	        notify fault
+	        exit 0
+	    ;;
+	    *)
+	        echo 'Usage: `basename $0` {master|backup|fault}'
+	        exit 1
+	    ;;
+	esac
+	
+### 配置keepalived为实现haproxy高可用的双主模型配置文件示例：
+
+说明：其基本实现思想为创建两个虚拟路由器，并以两个节点互为主从。
+
+	! Configuration File for keepalived  
+	  
+	global_defs {  
+	   notification_email {  
+	         PrincessQyy@gmail.com
+	   }  
+	   notification_email_from kanotify@magedu.com 
+	   smtp_connect_timeout 3  
+	   smtp_server 127.0.0.1  
+	   router_id LVS_DEVEL  
+	}  
+	
+	vrrp_script chk_haproxy {  
+	    script "killall -0 haproxy"  
+	    interval 1  
+	    weight 2  
+	}  
+	
+	vrrp_script chk_mantaince_down {
+	   script "[[ -f /etc/keepalived/down ]] && exit 1 || exit 0"
+	   interval 1
+	   weight 2
+	}
+	
+	vrrp_instance VI_1 {  
+	    interface eth0  
+	    state MASTER  # BACKUP for slave routers
+	    priority 101  # 100 for BACKUP
+	    virtual_router_id 51 
+	    garp_master_delay 1 
+	  
+	    authentication {  
+	        auth_type PASS  
+	        auth_pass password  
+	    }  
+	    track_interface {  
+	       eth0    
+	    }  
+	    virtual_ipaddress {  
+	        172.16.100.1/16 dev eth0 label eth0:0 
+	    }  
+	    track_script {  
+	        chk_haproxy  
+	        chk_mantaince_down
+	    }  
+	  
+	 
+	    notify_master "/etc/keepalived/notify.sh master"  
+	    notify_backup "/etc/keepalived/notify.sh backup"  
+	    notify_fault "/etc/keepalived/notify.sh fault"  
+	} 
+	
+	vrrp_instance VI_2 {  
+	    interface eth0  
+	    state BACKUP  # BACKUP for slave routers
+	    priority 100  # 100 for BACKUP
+	    virtual_router_id 52
+	    garp_master_delay 1 
+	  
+	    authentication {  
+	        auth_type PASS  
+	        auth_pass password  
+	    }  
+	    track_interface {  
+	       eth0    
+	    }  
+	    virtual_ipaddress {  
+	        172.16.100.2/16 dev eth0 label eth0:1
+	    }  
+	    track_script {  
+	        chk_haproxy  
+	        chk_mantaince_down
+	    }    
+	}
+
+
+说明：
+1、对于VI_1和VI_2来说，两个节点要互为主从关系；

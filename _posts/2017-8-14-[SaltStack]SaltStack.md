@@ -189,6 +189,12 @@ top.sls 默认从 base 标签开始解析执行,下一级是操作的目标，�
 
 #### 批量部署 Nginx
 
+**环境准备**
+
+建议关闭防火墙 `systemctl stop firewalld.service`
+
+关闭selinux，直接在/etc/selinux/config 文件中将selinux选项改为disabled
+
 **方法一：**
 
 这个方法是不写top文件的，先看下目录结构吧
@@ -205,12 +211,132 @@ source 选项后面写 master端的路径，这里是相对路径，相对于/sr
 
 其他字段的含义就看链接里的博客吧，写得很清楚：[文件管理](http://blog.csdn.net/hnhuangyiyang/article/details/50412738)
 
+在master端直接执行 `salt '*' state.sls nginx` 命令，会自动去Nginx目录下找到init.sls文件完成安装，。成功图和方法二一样，就不截图啦。
+
+file和 yum.repos.d目录下就是配置和yum源，就不截图了。。。
+
+**方法二：**
+
+同理，先看下目录结构
+
+
+<img src="../../../../../img/blogs/SaltStack/10.png">
+
+其他文件都一样，就是多了个top.sls文件，那么，看看这个文件写了些啥吧
+
+<img src="../../../../../img/blogs/SaltStack/11.png">
+
+这里需要注意格式，缩进分别是两个空格、四个空格，对格式要求很严格，缩进不符合规则，文件就不起作用。内容其实就一句...执行命令用 `salt '*'  state.highstate` ，它会自动去找nginx目录下的init.sls执行,可以看到执行成功，图太长，我就截一点点吧，反正就是一片绿色，如下图：
+
+<img src="../../../../../img/blogs/SaltStack/12.png">
+
+# salt 常用模块总结
+
+### cmd模块
+
+* name：要执行的命令，记住该命令将会在salt-minion的路径和权限下执行
+
+* onlyif：用于检查的命令，仅当``onlyif``选项指向的命令返回true时才执行name定义的命令
+
+* unless：用于检查的命令，仅当``unless``选项指向的命令返回false时才执行name指向的命令
+
+* cwd：执行命令时的当前工作目录，默认是/root
+
+* user：以指定用户身份运行命令
+
+* group：以指定用户组身份运行命令
+
+* shell：用于执行命令的shell，默认shell grain
+
+* run：运行name后的命令    
+
+举例：
+
+<img src="../../../../../img/blogs/SaltStack/13.png">
+
+### cron模块（设置定时任务）
+
+* minute：分
+* hour：时
+* daymonth：日
+* month：月
+* dayweek：周
+* user：用户名
+* present：创建计划任务
+* name：计划任务内容
+
+举例：
+
+
+<img src="../../../../../img/blogs/SaltStack/14.png">
+
+### file模块
+
+	#校验所有被控主机/etc/fstab文件的md5值是否为xxxxxxxxxxxxx,一致则返回True值
+	salt '*' file.check_hash /etc/fstab md5=xxxxxxxxxxxxxxxxxxxxx
+	
+	#校验所有被控主机文件的加密信息，支持md5、sha1、sha224、shs256、sha384、sha512加密算法
+	salt '*' file.get_sum /etc/passwd md5
+	
+	#修改所有被控主机/etc/passwd文件的属组、用户权限、等价于chown root:root /etc/passwd
+	salt '*' file.chown /etc/passwd root root
+	
+	#复制所有被控主机/path/to/src文件到本地的/path/to/dst文件
+	salt '*' file.copy /path/to/src /path/to/dst
+	
+	#检查所有被控主机/etc目录是否存在，存在则返回True,检查文件是否存在使用file.file_exists方法
+	salt '*' file.directory_exists /etc
+	
+	#获取所有被控主机/etc/passwd的stats信息
+	salt '*' file.stats /etc/passwd
+	
+	#获取所有被控主机/etc/passwd的权限mode，如755，644
+	salt '*' file.get_mode /etc/passwd
+	
+	#修改所有被控主机/etc/passwd的权限mode为0644
+	salt '*' file.set_mode /etc/passwd 0644
+	
+	#在所有被控主机创建/opt/test目录
+	salt '*' file.mkdir /opt/test
+	
+	#将所有被控主机/etc/httpd/httpd.conf文件的LogLevel参数的warn值修改为info
+	salt '*' file.sed /etc/httpd/httpd.conf 'LogLevel warn' 'LogLevel info'
+	
+	#给所有被控主机的/tmp/test/test.conf文件追加内容‘maxclient 100’
+	salt '*' file.append /tmp/test/test.conf 'maxclient 100'
+	
+	#删除所有被控主机的/tmp/foo文件
+	salt '*' file.remove /tmp/foo
+
+### pkg模块
+
+<img src="../../../../../img/blogs/SaltStack/15.png">
+
+### service模块
+
+<img src="../../../../../img/blogs/SaltStack/16.png">
+
+### user模块：
+
+<img src="../../../../../img/blogs/SaltStack/17.png">
+
+举例：公司来新的员工，需要在所有的服务器上添加一个普通账号：
+ 
+
+<img src="../../../../../img/blogs/SaltStack/18.png">
+
+<img src="../../../../../img/blogs/SaltStack/19.png">
+
+<img src="../../../../../img/blogs/SaltStack/20.png">
 
 # salt-ssh
 
 Salt 在版本 0.17.0 当中，引入了新的传输系统，它支持通过 SSH 通道来实现 Salt 的通信。通过这种方式，我们可以直接通过 SSH 通道在远程主机上执行使用 SaltStack，而不需要在远程主机上运行 Salt Minion ，同时又能支持 SaltStack 的大部分功能，而且 Salt Master 也不需要运行了。这样，也就实现了免客户端方式的部署和实施。
 
-但是由于无客户端本身的局限性 Salt SSH 并不能完全取代标准的 Salt 通信方式，只是简单地提供了一个基于 SSH 通道的可选方式，这种方式不需要 ZeroMQ 和远程 Agent 的支持；整体的工作流程和基于客户端架构大致相同。但必须意识到，通过 Salt SSH 的执行速度会远远低于 ZeroMQ 支持的标准的 Salt 通信方式。
+
+但是由于无客户端本身的局限性， Salt SSH 并不能完全取代标准的 Salt 通信方式，只是简单地提供了一个基于 SSH 通道的可选方式，这种方式不需要 ZeroMQ 和远程 Agent 的支持；整体的工作流程和基于客户端架构大致相同。但必须意识到，通过 Salt SSH 的执行速度会远远低于 ZeroMQ 支持的标准的 Salt 通信方式。
+
+通过ssh连接被管理端，被管理端不用安装minion，管理端也不用安装master，salt-ssh是一个独立的包。一般没有客户端没有安装minion时候才考虑先用salt-ssh批量安装minion。
 
 ### salt-ssh安装
 
