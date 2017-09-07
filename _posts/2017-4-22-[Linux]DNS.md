@@ -448,8 +448,117 @@ rndc通常我们不会设置来让远程主机进行控制，这样做相当危�
 
 
 
-## 视图
+## view and acl
 
+#### view 
 
+view语句定义了视图功能。视图是BIND 9提供的强大的新功能，允许DNS服务器根据客户端的不同有区别地回答DNS查询，每个视图定义了一个被特定客户端子集见到的DNS名称空间。这个功能在一台主机上运行多个形式上独立的DNS服务器时特别有用。
 
+视图（view）语句的定义：
 
+	view view_name [class] {
+	match-clients { address_match_list } ;
+	match-destinations { address_match_list } ;
+	match-recursive-only { yes_or_no } ;
+	[ view_option; ...]
+	zone-statistics yes_or_no ; ]
+	[ zone_statement; ...]
+	};
+视图是BIND9强大的新功能，允许名称服务器根据询问者的不同有区别的回答DNS查询。特别是当运行拆分DNS设置而不需要运行多个服务器时特别有用。每个视图定义了一个将会在用户的子集中见到的DNS名称空间。
+
+配置示例：
+
+	view "internal" {  
+	    match-clients { 10.0.0.0/8; };  
+	    // 应该与内部网络匹配.  
+	    // 只对内部用户提供递归服务.  
+	    // 提供example.com zone 的完全视图  
+	    //包括内部主机地址.  
+	    recursion yes;  
+	    zone "example.com" {  
+	        type master;  
+	        file "example-internal.db";  
+	    };  
+	};  
+	view "external" {  
+	    match-clients { any; };  
+	    // 拒绝对外部用户提供递归服务  
+	    // 提供一个example.com zone 的受限视图  
+	    // 只包括公共可接入主机  
+	    recursion no;  
+	    zone "example.com" {  
+	        type master;  
+	        file "example-external.db";  
+	    };  
+	};  
+
+#### acl
+
+acl主配置语句用于定义一个命名的访问列表，里面包含了一些用IP表示的主机，这个访问列表可以在其他语句使用，表示其所定义的主机。其格式如下：
+
+	acl acl-name {   
+	    address_match_list   
+	}; 
+
+address_match_list表示IP地址或IP地址集。其中，none、any、localhost和localnets这4个内定的关键字有特别含义，分别表示没有主机、任何主机、本地网络接口IP和本地子网IP。
+
+示例如下：
+
+	
+	acl "someips" {             //定义一个名为someips的ACL    
+	  10.0.0.1; 192.168.23.1; 192.168.23.15;      //包含3个单个IP    
+	 };    
+	acl "complex" {             //定义一个名为complex的ACL    
+	  "someips";                //可以包含其他ACL    
+	  10.0.15.0/24;                 //包含10.0.15.0子网中的所有IP    
+	  !10.0.16.1/24;                //非10.0.16.1子网的IP    
+	  {10.0.17.1;10.0.18.2;};   //包含了一个IP组    
+	  localhost；                //本地网络接口IP（含实际接口IP和127.0.0.1）    
+	 };    
+	zone "example.com" {    
+	  type slave;    
+	  file "slave.example.com";    
+	  allow-notify {"complex";};    //在此处使用了前面定义的complex访问列表    
+	};   
+
+#### 智能解析
+
+对于ACL、VIEW、ZONE的应用，DNS服务器有一个高级的功能，能够实现不同的用户访问同一个域名，把域名解析成不同的IP地址，使用户能够访问离他最近的服务器上的数据，这就是DNS服务器的视图功能。使用DNS服务器的视图功能可以增加网站的响应速度。例如，当我们网站的数据同步在两台web服务器上时，一台是电信服务器，一台是网通服务器，那么我们肯定希望全国访问我们网站的用户在打开网站的时候，能够自动实现，电信用户访问电信服务器，网通用户访问网通服务器。配置这种情况的前提是，web服务器必须要有一个电信的IP地址和一个网通的IP地址。DNS服务器的这种解析功能通常也被称之为智能解析。
+
+DNS服务器的视图通常在配置文件中是使用view实现的。把要使用某些IP地址作单独访问的zone区域，统一放在一个命名的view段落中，并且在view中定义请求的IP地址或IP地址段，把IP地址写入match-clients选项中。如果像上面说的，区分电信和网通路线的话，那么可以使用两个acl访问控制列表写上电信或网通IP地址，定义电信网通路线，把acl名字写入view段落match-clients选项中。
+
+示例如下：
+
+	acl telecomip{ tele_IP; ... };  
+	acl netcomip{ net_IP; ... };  
+	view telecom {  
+	    match-clients { telecomip; };  
+	    zone "ZONE_NAME" IN {  
+	        type master;  
+	        file "ZONE_NAME.telecom";  
+	    };  
+	};  
+	view netcom {  
+	    match-clients { netcomip; };  
+	    zone "ZONE_NAME" IN {  
+	        type master;  
+	        file "ZONE_NAME.netcom";  
+	    };  
+	};  
+	view default {  
+	    match-clients { any; };  
+	    zone "ZONE_NAME" IN {  
+	        type master;  
+	        file "ZONE_NAME.netcom";  
+	    };  
+	};  
+
+需要注意的是：
+
+(1)、如果使用了视图的功能，那么配置文件中的所有zone区域都要必须写在视图里面，如，配置文件里默认要配置的三个区域，根、127.0.0.1、1.0.0.127.in-addr.arpa都要写入视图。
+
+(2)、在acl中定义IP地址，IP地址的写法可以是单个IP地址也可以是一个IP地址段加掩码，如：192.168.0.0/24。
+
+(3)、视图是根据配置文件从上往下匹配的，所以希望优先访问的资源记录文件，区域应该尽量写前面。
+
+(4)、如果定义的若干个视图的IP地址不全的话，那么可以在最后定义一个默认视图，match-clients选项中的IP地址写上any，代表如果此次访问的IP地址上面没有一个能匹配到，则在此处归类。
